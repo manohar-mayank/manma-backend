@@ -4,9 +4,14 @@ import express from "express";
 import { manmaRouter } from "./src/routes/manma.routes.js";
 
 const app = express();
-const allowedOrigins = (
+const configuredOrigins = (
   process.env.CLIENT_ORIGIN || "http://localhost:5173"
 ).split(",").map((origin) => origin.trim()).filter(Boolean);
+const localDevelopmentOrigins =
+  process.env.NODE_ENV === "production"
+    ? []
+    : ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = [...new Set([...configuredOrigins, ...localDevelopmentOrigins])];
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: "16kb" }));
 app.get("/health", (_request, response) =>
@@ -24,7 +29,7 @@ app.use((error, _request, response, _next) => {
       projects: [],
     });
 });
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT || 5000);
 app.listen(port, "0.0.0.0", () =>
   console.info(`Manma API listening on port ${port}`),
 );

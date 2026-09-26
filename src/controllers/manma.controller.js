@@ -1,4 +1,5 @@
 import { answerPortfolioQuestion } from "../services/rag.service.js";
+
 export async function chatWithManma(request, response) {
   const startedAt = Date.now();
   try {

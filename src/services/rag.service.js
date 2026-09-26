@@ -5,11 +5,7 @@ const fallback =
 export async function answerPortfolioQuestion({ message, conversation }) {
   const matches = await retrievePortfolioContext(message);
   if (!matches.length) return { answer: fallback, sources: [], projects: [] };
-  const answer = await generateAnswer({
-    message,
-    conversation,
-    context: matches.map((match) => match.content).join("\n\n"),
-  });
+
   const sources = matches.map((match) => ({
     title:
       match.metadata.title || match.metadata.source || "Portfolio knowledge",
@@ -19,5 +15,10 @@ export async function answerPortfolioQuestion({ message, conversation }) {
   const projects = [
     ...new Set(matches.map((match) => match.metadata.project).filter(Boolean)),
   ];
+  const answer = await generateAnswer({
+    message,
+    conversation,
+    context: matches.map((match) => match.content).join("\n\n"),
+  });
   return { answer, sources, projects };
 }

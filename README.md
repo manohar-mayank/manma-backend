@@ -43,12 +43,12 @@ The index builder uses the `gemini-embedding-001` embedding model and writes spl
 
 ```text
 src/data/
-  knowledge/             General portfolio Markdown documents
-  projects/              Project-specific Markdown documents
+  knowledge/             General portfolio Markdown and PDF documents
+  projects/              Project-specific Markdown and PDF documents
   manma-questions.json   Manual question coverage/reference list
 ```
 
-The ingestion workflow reads Markdown files recursively from `src/data`, splits them into chunks, adds metadata, and writes them to Qdrant. These files are intentionally kept in the repository.
+The ingestion workflow reads `.md` and `.pdf` files recursively from `src/data`. PDFs are converted to text with `pdf-parse`; extracted text and Markdown are split into chunks, tagged with source metadata, embedded with Gemini, and written to Qdrant. PDFs must contain extractable text; scanned image-only PDFs need OCR before indexing. `manma-questions.json` is a manual question reference and is not part of the index.
 
 ## Environment Variables
 
@@ -93,6 +93,8 @@ Build or refresh the Qdrant index after configuring credentials:
 ```bash
 npm run index
 ```
+
+Place PDF or Markdown knowledge files under `src/data/knowledge` (or project-specific files under `src/data/projects`) before running the index command. There is no HTTP file-upload endpoint; indexing is performed by this command.
 
 The server exposes `GET /health` for a basic health check.
 

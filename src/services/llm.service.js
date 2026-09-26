@@ -10,18 +10,29 @@ function getLlm() {
     });
   return llm;
 }
-export async function generateAnswer({ message, conversation, context }) {
+function createMessages({ message, conversation, context }) {
   const history = conversation.map(
     (item) => new HumanMessage(`${item.role}: ${item.content}`),
   );
-  const response = await getLlm().invoke([
+  return [
     new SystemMessage(
       `${MANMA_SYSTEM_PROMPT}\n\nPortfolio context:\n${context}`,
     ),
     ...history,
     new HumanMessage(message),
-  ]);
-  return typeof response.content === "string"
-    ? response.content
-    : String(response.content);
+  ];
+}
+
+function getText(content) {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .filter((part) => part?.type === "text" && typeof part.text === "string")
+    .map((part) => part.text)
+    .join("");
+}
+
+export async function generateAnswer(input) {
+  const response = await getLlm().invoke(createMessages(input));
+  return getText(response.content);
 }
